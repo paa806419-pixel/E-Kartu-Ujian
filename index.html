@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kartu Ujian Digital - GAS PWA</title>
+    <title>Kartu Ujian Digital</title>
     <!-- Favicon & Touch Icon -->
     <link rel="icon" type="image/png" href="https://iili.io/3b1SedN.png">
     <link rel="apple-touch-icon" href="https://iili.io/3b1SedN.png">
@@ -220,7 +220,7 @@
                         </button>
                         <button onclick="switchTab('cetak-massal')" id="nav-cetak-massal" class="nav-btn w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-medium transition text-slate-300 hover:bg-slate-800 hover:text-white">
                             <i class="fa-solid fa-print w-5"></i>
-                            <span>Cetak Massal</span>
+                            <span>Cetak Kartu</span>
                         </button>
                     </div>
 
@@ -560,12 +560,12 @@
                     <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/80 space-y-6 no-print">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4 border-slate-100">
                             <div>
-                                <h2 class="text-xl font-bold text-slate-800">Cetak Kartu Ujian Massal</h2>
+                                <h2 class="text-xl font-bold text-slate-800">Cetak Kartu</h2>
                                 <p class="text-xs text-slate-500">Pilih kelas, atur ukuran kertas, dan tata letak kartu per lembar</p>
                             </div>
                             <button onclick="window.print()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs shadow-md transition flex items-center justify-center space-x-2">
                                 <i class="fa-solid fa-print"></i>
-                                <span>Cetak Halaman Ini (PDF Warna)</span>
+                                <span>Cetak Kartu</span>
                             </button>
                         </div>
 
@@ -629,8 +629,8 @@
                 <section id="section-pengaturan" class="tab-content hidden space-y-6">
                     <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/80 space-y-6">
                         <div class="border-b pb-4 border-slate-100">
-                            <h2 class="text-xl font-bold text-slate-800">Pengaturan System & Integrasi Google Sheets</h2>
-                            <p class="text-xs text-slate-500">Konfigurasi endpoint REST API Google Apps Script untuk deployment GitHub Pages</p>
+                            <h2 class="text-xl font-bold text-slate-800">Pengaturan System</h2>
+                            <p class="text-xs text-slate-500"></p>
                         </div>
 
                         <div class="space-y-4 text-xs">
@@ -640,7 +640,7 @@
                                     <span id="cfg-mode-status" class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">PREVIEW (Data Lokal)</span>
                                 </div>
                                 <p class="text-slate-500">
-                                    Aplikasi ini dirancang untuk dapat di-deploy secara publik melalui **GitHub Pages**. Masukkan URL Web App Google Apps Script Anda di bawah ini untuk menghubungkannya secara live ke Google Sheets.
+                                    -**_
                                 </p>
                                 
                                 <div class="space-y-2 pt-2">
@@ -1267,7 +1267,7 @@
                     if (res && res.success) {
                         closeModalSiswa();
                         await loadDataSiswa();
-                        showToast('Data siswa berhasil disimpan ke Google Sheets!', 'success');
+                        showToast('Data siswa berhasil disimpan', 'success');
                     } else {
                         showToast('Gagal menyimpan: ' + (res ? res.message : 'Error'), 'error');
                     }
@@ -1293,7 +1293,7 @@
                         const res = await callGasApi('deleteSiswa', { id: id });
                         if (res && res.success) {
                             await loadDataSiswa();
-                            showToast('Data siswa berhasil dihapus dari Google Sheets!', 'success');
+                            showToast('Data siswa berhasil dihapus', 'success');
                         } else {
                             showToast('Gagal menghapus: ' + (res ? res.message : 'Error'), 'error');
                         }
