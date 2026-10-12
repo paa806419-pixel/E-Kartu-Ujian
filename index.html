@@ -12,7 +12,7 @@
     <!-- FontAwesome CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
@@ -36,8 +36,11 @@
         }
     </script>
     <style>
-        /* Paksa Browser Mencetak Warna & Latar Belakang Gradient secara utuh */
         @media print {
+            @page {
+                size: 215mm 330mm portrait;
+                margin: 3mm 4mm;
+            }
             * {
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
@@ -63,12 +66,16 @@
             .print-page-wrapper {
                 page-break-after: always;
                 break-after: page;
-                margin-bottom: 0 !important;
-                padding-bottom: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
                 border: none !important;
                 box-shadow: none !important;
                 background: transparent !important;
                 width: 100% !important;
+                height: 298mm !important;
+                max-height: 298mm !important;
+                box-sizing: border-box !important;
+                overflow: hidden !important;
             }
             .print-page-wrapper:last-child {
                 page-break-after: avoid;
@@ -77,17 +84,61 @@
             .print-grid {
                 display: grid !important;
                 grid-template-columns: repeat(2, 1fr) !important;
-                gap: 4mm !important;
+                grid-template-rows: repeat(4, 72.5mm) !important;
+                gap: 2mm 3mm !important;
                 width: 100% !important;
+                height: 294mm !important;
             }
             .print-card-item {
                 box-shadow: none !important;
                 break-inside: avoid !important;
                 page-break-inside: avoid !important;
                 width: 100% !important;
-                max-width: 100% !important;
+                height: 72.5mm !important;
+                max-height: 72.5mm !important;
+                padding: 1.5mm 2.5mm !important;
+                border: 1.5px solid #0f172a !important;
+                box-sizing: border-box !important;
+                overflow: hidden !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: space-between !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
+            }
+            .print-card-item .card-kop-logo {
+                width: 32px !important;
+                height: 32px !important;
+            }
+            .print-card-item .card-foto {
+                width: 44px !important;
+                height: 56px !important;
+            }
+            .print-card-item .card-qr {
+                width: 36px !important;
+                height: 36px !important;
+            }
+            /* Gambar TTD Diperbesar Transparan Overlay tanpa mengubah ukuran Kartu */
+            .print-card-item .card-ttd-container {
+                position: relative !important;
+                height: 16px !important;
+                width: 110px !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: flex-end !important;
+            }
+            .print-card-item .card-ttd {
+                position: absolute !important;
+                top: 50% !important;
+                right: 0 !important;
+                transform: translateY(-50%) !important;
+                height: 52px !important;
+                max-height: 56px !important;
+                max-width: 150px !important;
+                object-fit: contain !important;
+                mix-blend-mode: multiply !important;
+                pointer-events: none !important;
+                z-index: 20 !important;
             }
         }
         /* Custom Scrollbar */
@@ -130,15 +181,21 @@
     </div>
 
     <div id="login-view" class="flex min-h-screen items-center justify-center p-4 bg-gradient-to-br from-brand-800 via-brand-700 to-slate-900">
-        <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 sm:p-8 space-y-6">
-            <div class="text-center space-y-2">
-                <img src="https://iili.io/3b1SedN.png" alt="Logo Sekolah" class="w-20 h-20 object-contain mx-auto mb-2 drop-shadow-md">
+        <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 sm:p-8 space-y-6 relative overflow-hidden">
+            
+            <!-- Watermark Background Login Card -->
+            <div class="absolute -right-8 -bottom-8 opacity-[0.18] pointer-events-none z-0">
+                <img src="https://iili.io/nV5XeNS.png" onerror="this.src='https://iili.io/nV5XeNS.th.png'" class="w-56 h-56 object-contain">
+            </div>
+
+            <div class="relative z-10 text-center space-y-2">
+                <img src="https://iili.io/nV5XeNS.png" onerror="this.src='https://iili.io/nV5XeNS.th.png'" alt="Logo Sekolah" class="w-20 h-20 object-contain mx-auto mb-2 drop-shadow-md">
                 <h1 class="text-2xl font-bold text-slate-900">Kartu Ujian Digital</h1>
                 <p class="text-xs text-slate-500">Silakan login untuk mengakses kartu ujian siswa</p>
             </div>
 
             <!-- Login Form -->
-            <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
+            <form id="form-login" onsubmit="handleLogin(event)" class="relative z-10 space-y-4">
                 <div>
                     <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Username</label>
                     <div class="relative">
@@ -269,7 +326,6 @@
 
             <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto space-y-6">
 
-                <!-- SECTION 1: DASHBOARD -->
                 <section id="section-dashboard" class="tab-content space-y-6">
                     <div class="bg-gradient-to-r from-brand-800 via-brand-700 to-emerald-900 rounded-2xl p-6 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
                         <div class="space-y-2 text-center md:text-left">
@@ -334,7 +390,6 @@
 
                     <!-- App & System Manager Info Section -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                        <!-- Card 1: Informasi Aplikasi -->
                         <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200/80 space-y-4">
                             <div class="flex items-center space-x-3 border-b pb-3 border-slate-100">
                                 <div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center text-lg font-bold shadow-sm border border-brand-100">
@@ -352,7 +407,7 @@
                                 </div>
                                 <div class="flex justify-between items-center py-1.5 border-b border-slate-100">
                                     <span class="text-slate-500 font-medium">Versi Aplikasi</span>
-                                    <span class="font-mono font-bold text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-md border border-slate-200">v1.1.1</span>
+                                    <span class="font-mono font-bold text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-md border border-slate-200">v1.3.0</span>
                                 </div>
                                 <div class="flex justify-between items-center py-1.5">
                                     <span class="text-slate-500 font-medium">Sekolah / Instansi</span>
@@ -361,7 +416,6 @@
                             </div>
                         </div>
 
-                        <!-- Card 2: Pengelola System -->
                         <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200/80 space-y-4">
                             <div class="flex items-center space-x-3 border-b pb-3 border-slate-100">
                                 <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg font-bold shadow-sm border border-blue-100">
@@ -390,7 +444,6 @@
                     </div>
                 </section>
 
-                <!-- SECTION 2: MASTER KARTU & KOP SURAT (ADMIN) -->
                 <section id="section-master-kartu" class="tab-content hidden space-y-6">
                     <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/80 space-y-6">
                         <div class="border-b pb-4 border-slate-100">
@@ -400,7 +453,6 @@
 
                         <form id="form-master-kartu" onsubmit="saveMasterKartu(event)" class="space-y-6">
                             
-                            <!-- Sub-Section 1: Identitas Kop Surat -->
                             <div class="space-y-4">
                                 <h3 class="font-bold text-slate-800 text-sm flex items-center space-x-2 border-b pb-2 border-slate-100">
                                     <i class="fa-solid fa-building text-brand-600"></i>
@@ -418,7 +470,7 @@
                                     </div>
                                     <div>
                                         <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Pemerintah / Yayasan</label>
-                                        <input type="text" id="mk-pemerintah" placeholder="PEMERINTAH KOTA PEKANBARU" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500">
+                                        <input type="text" id="mk-pemerintah" placeholder="PEMERINTAH KABUPATEN PESISIR SELATAN" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500">
                                     </div>
                                     <div>
                                         <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Dinas / Departemen</label>
@@ -426,28 +478,27 @@
                                     </div>
                                     <div>
                                         <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Sekolah</label>
-                                        <input type="text" id="mk-sekolah" required placeholder="SMA NEGERI 1 PEKANBARU" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500">
+                                        <input type="text" id="mk-sekolah" required placeholder="SD NEGERI 22 TANAH KERAS" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500">
                                     </div>
                                     <div>
                                         <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Kecamatan</label>
-                                        <input type="text" id="mk-kecamatan" placeholder="KECAMATAN TAMPAN" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500">
+                                        <input type="text" id="mk-kecamatan" placeholder="KECAMATAN SILAUT" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500">
                                     </div>
                                     <div class="md:col-span-2">
                                         <label class="block text-xs font-semibold text-slate-700 mb-1">Alamat Sekolah</label>
-                                        <input type="text" id="mk-alamat" placeholder="Jl. HR. Soebrantas No. 123" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500">
+                                        <input type="text" id="mk-alamat" placeholder="Alamat: Tanah Keras - Gurun Panjang Barat, Kode Pos: 25652" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500">
                                     </div>
                                     <div>
                                         <label class="block text-xs font-semibold text-slate-700 mb-1">Email Sekolah</label>
-                                        <input type="email" id="mk-email" placeholder="info@sekolah.sch.id" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500">
+                                        <input type="email" id="mk-email" placeholder="UPTsdn22tanahkeras@gmail.com" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500">
                                     </div>
                                     <div>
                                         <label class="block text-xs font-semibold text-slate-700 mb-1">Website Sekolah</label>
-                                        <input type="text" id="mk-website" placeholder="www.sekolah.sch.id" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500">
+                                        <input type="text" id="mk-website" placeholder="www.sdn22tanahkeras.sch.id" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500">
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Sub-Section 2: Informasi Pelaksanaan Ujian -->
                             <div class="space-y-4">
                                 <h3 class="font-bold text-slate-800 text-sm flex items-center space-x-2 border-b pb-2 border-slate-100">
                                     <i class="fa-solid fa-file-signature text-brand-600"></i>
@@ -457,11 +508,11 @@
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Kartu Ujian / Ujian</label>
-                                        <input type="text" id="mk-nama" required placeholder="Contoh: Penilaian Akhir Semester (PAS)" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500">
+                                        <input type="text" id="mk-nama" required placeholder="KARTU PESERTA UJIAN TENGAH SEMESTER I" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500">
                                     </div>
                                     <div>
                                         <label class="block text-xs font-semibold text-slate-700 mb-1">Tahun Pelajaran</label>
-                                        <input type="text" id="mk-tp" required placeholder="Contoh: 2025/2026" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500">
+                                        <input type="text" id="mk-tp" required placeholder="2026/2027" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500">
                                     </div>
                                     <div>
                                         <label class="block text-xs font-semibold text-slate-700 mb-1">Semester</label>
@@ -472,12 +523,11 @@
                                     </div>
                                     <div>
                                         <label class="block text-xs font-semibold text-slate-700 mb-1">Tanggal Pelaksanaan</label>
-                                        <input type="text" id="mk-tanggal" placeholder="Contoh: 01 - 10 Desember 2025" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500">
+                                        <input type="text" id="mk-tanggal" placeholder="01 - 10 Oktober 2026" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500">
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Sub-Section 3: Tanda Tangan Elektronik Kepala Sekolah -->
                             <div class="space-y-4">
                                 <h3 class="font-bold text-slate-800 text-sm flex items-center space-x-2 border-b pb-2 border-slate-100">
                                     <i class="fa-solid fa-pen-nib text-brand-600"></i>
@@ -487,16 +537,16 @@
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Kepala Sekolah</label>
-                                        <input type="text" id="mk-kepsek" required placeholder="Dr. H. Ahmad Dahlan, M.Pd" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500">
+                                        <input type="text" id="mk-kepsek" required placeholder="RINA MELATI, M.Pd" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500">
                                     </div>
                                     <div>
                                         <label class="block text-xs font-semibold text-slate-700 mb-1">NIP Kepala Sekolah</label>
-                                        <input type="text" id="mk-nip" placeholder="19780112 200501 1 002" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500">
+                                        <input type="text" id="mk-nip" placeholder="197103161993042001" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500">
                                     </div>
                                     <div class="md:col-span-2">
                                         <label class="block text-xs font-semibold text-slate-700 mb-1">URL Gambar TTD Elektronik (Format PNG Transparan)</label>
                                         <input type="url" id="mk-ttd" placeholder="https://domain.com/ttd-kepsek.png" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500">
-                                        <p class="text-[10px] text-slate-400 mt-1">Disarankan menggunakan gambar PNG transparan agar TTD terlihat menyatu dengan kartu ujian.</p>
+                                        <p class="text-[10px] text-slate-400 mt-1">Disarankan menggunakan gambar PNG transparan agar TTD terlihat jelas dan tampak profesional.</p>
                                     </div>
                                 </div>
                             </div>
@@ -511,7 +561,6 @@
                     </div>
                 </section>
 
-                <!-- SECTION 3: DATA SISWA & NO UJIAN (ADMIN) -->
                 <section id="section-data-siswa" class="tab-content hidden space-y-6">
                     <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/80 space-y-6">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4 border-slate-100">
@@ -555,17 +604,16 @@
                     </div>
                 </section>
 
-                <!-- SECTION 4: CETAK MASSAL (ADMIN) -->
                 <section id="section-cetak-massal" class="tab-content hidden space-y-6">
                     <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/80 space-y-6 no-print">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4 border-slate-100">
                             <div>
-                                <h2 class="text-xl font-bold text-slate-800">Cetak Kartu</h2>
-                                <p class="text-xs text-slate-500">Pilih kelas, atur ukuran kertas, dan tata letak kartu per lembar</p>
+                                <h2 class="text-xl font-bold text-slate-800">Cetak Kartu Ujian (8 Kartu / Lembar F4)</h2>
+                                <p class="text-xs text-slate-500">Tulisan & TTD diperbesar tajam dan jelas, pas 8 Kartu per 1 Lembar F4</p>
                             </div>
                             <button onclick="window.print()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs shadow-md transition flex items-center justify-center space-x-2">
                                 <i class="fa-solid fa-print"></i>
-                                <span>Cetak Kartu</span>
+                                <span>Cetak Kertas F4</span>
                             </button>
                         </div>
 
@@ -581,17 +629,16 @@
                             <div class="flex flex-col sm:flex-row sm:items-center gap-2">
                                 <label class="text-xs font-semibold text-slate-700">Ukuran Kertas:</label>
                                 <select id="cetak-ukuran-kertas" onchange="renderCetakMassal()" class="px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-bold text-brand-700 focus:ring-2 focus:ring-brand-500">
-                                    <option value="F4">F4 / Folio (Max 8 Kartu / Lembar)</option>
-                                    <option value="A4">A4 (Max 6 Kartu / Lembar)</option>
-                                    <option value="Legal">Legal (Max 8 Kartu / Lembar)</option>
+                                    <option value="F4" selected>F4 / Folio (8 Kartu / Lembar - 215x330 mm)</option>
+                                    <option value="Legal">Legal (8 Kartu / Lembar - 216x356 mm)</option>
+                                    <option value="A4">A4 (6 Kartu / Lembar - 210x297 mm)</option>
                                 </select>
                             </div>
 
                             <div class="flex flex-col sm:flex-row sm:items-center gap-2">
-                                <label class="text-xs font-semibold text-slate-700">Kartu per Lembar:</label>
-                                <select id="cetak-limit-per-halaman" onchange="renderCetakMassal()" class="px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-medium focus:ring-2 focus:ring-brand-500">
-                                    <option value="auto">Otomatis Sesuai Jenis Kertas</option>
-                                    <option value="8">8 Kartu (4 Baris x 2 Kolom)</option>
+                                <label class="text-xs font-semibold text-slate-700">Jumlah Kartu per Lembar:</label>
+                                <select id="cetak-limit-per-halaman" onchange="renderCetakMassal()" class="px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-bold text-emerald-700 focus:ring-2 focus:ring-brand-500">
+                                    <option value="8" selected>8 Kartu (4 Baris x 2 Kolom - Pas F4)</option>
                                     <option value="6">6 Kartu (3 Baris x 2 Kolom)</option>
                                     <option value="4">4 Kartu (2 Baris x 2 Kolom)</option>
                                 </select>
@@ -605,7 +652,6 @@
                     </div>
                 </section>
 
-                <!-- SECTION 5: KARTU SAYA (PESERTA) -->
                 <section id="section-kartu-saya" class="tab-content hidden space-y-6">
                     <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/80 space-y-6">
                         <div class="flex items-center justify-between border-b pb-4 border-slate-100 no-print">
@@ -625,12 +671,11 @@
                     </div>
                 </section>
 
-                <!-- SECTION 6: PENGATURAN SYSTEM -->
                 <section id="section-pengaturan" class="tab-content hidden space-y-6">
                     <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/80 space-y-6">
                         <div class="border-b pb-4 border-slate-100">
                             <h2 class="text-xl font-bold text-slate-800">Pengaturan System</h2>
-                            <p class="text-xs text-slate-500"></p>
+                            <p class="text-xs text-slate-500">Konfigurasi endpoint API Google Apps Script</p>
                         </div>
 
                         <div class="space-y-4 text-xs">
@@ -639,9 +684,7 @@
                                     <span class="font-semibold text-slate-700">Mode Database & Integrasi:</span>
                                     <span id="cfg-mode-status" class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">PREVIEW (Data Lokal)</span>
                                 </div>
-                                <p class="text-slate-500">
-                                    -**-
-                                </p>
+                                <p class="text-slate-500">Aplikasi mendukung mode offline preview dan sinkronisasi real-time dengan Google Sheets API.</p>
                                 
                                 <div class="space-y-2 pt-2">
                                     <label class="block font-bold text-slate-700">URL Web App Google Apps Script (GAS API Endpoint):</label>
@@ -653,11 +696,6 @@
                                     </div>
                                     <p class="text-[10px] text-slate-400">URL ini dapat diperoleh dari menu <strong>Deploy > New deployment > Web App</strong> pada Google Apps Script Editor Anda.</p>
                                 </div>
-                            </div>
-
-                            <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
-                                <h4 class="font-bold text-slate-800">Inisialisasi Database Sheet</h4>
-                                <p class="text-slate-500">Jalankan fungsi <code class="bg-slate-200 px-1 rounded font-mono">setupDatabase()</code> satu kali di Apps Script Editor untuk membuat sheet <code class="bg-slate-200 px-1 rounded font-mono">Users</code>, <code class="bg-slate-200 px-1 rounded font-mono">KartuUjian</code>, dan <code class="bg-slate-200 px-1 rounded font-mono">DataSiswa</code> secara otomatis.</p>
                             </div>
                         </div>
                     </div>
@@ -680,22 +718,22 @@
                 <input type="hidden" id="siswa-id">
                 <div>
                     <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Lengkap Siswa</label>
-                    <input type="text" id="siswa-nama" required placeholder="Contoh: Muhammad Rizky" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500">
+                    <input type="text" id="siswa-nama" required placeholder="Contoh: ABIFTIU FA'IHUL AL RAIFF" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500">
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1">Kelas</label>
-                        <input type="text" id="siswa-kelas" required placeholder="XII MIPA 1" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500">
+                        <input type="text" id="siswa-kelas" required placeholder="III/Tiga" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1">NISN / NIS</label>
-                        <input type="text" id="siswa-nisn" required placeholder="0051234567" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500">
+                        <input type="text" id="siswa-nisn" required placeholder="318127276E / 756" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500">
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1">Nomor Ujian</label>
-                        <input type="text" id="siswa-noujian" required placeholder="01-001-001-8" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500">
+                        <input type="text" id="siswa-noujian" required placeholder="UTS 1-2324-001" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1">Ruang</label>
@@ -743,7 +781,6 @@
     <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none max-w-sm w-full px-4 sm:px-0"></div>
 
     <script>
-        // KONFIGURASI APLIKASI UNTUK DEPLOYMENT GITHUB PAGES / STATIC HOSTING
         const DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbzpIcKDuKbVDRELQFkKS5JffsTEMtYVxtbUfasccoa3RBy05u7uMjg5EOePb63Wd5XW/exec';
         let GAS_API_URL = localStorage.getItem('gas_api_url') || DEFAULT_GAS_URL;
         let IS_PREVIEW = !GAS_API_URL;
@@ -753,7 +790,38 @@
         let deferredPrompt = null;
         let confirmCallback = null;
 
-        // TOAST NOTIFICATION SYSTEM
+        // DEFAULT DATA SAMPLE
+        let dummyMasterKartu = {
+            id: 'MK-01',
+            logoKiriUrl: 'https://iili.io/3QUsMEx.png',
+            logoKananUrl: 'https://iili.io/3LIjucb.png',
+            pemerintah: 'PEMERINTAH KABUPATEN PESISIR SELATAN',
+            dinas: 'DINAS PENDIDIKAN',
+            sekolah: 'SD NEGERI 22 TANAH KERAS',
+            kecamatan: 'KECAMATAN SILAUT',
+            alamat: 'Alamat: Tanah Keras - Gurun Panjang Barat, Kode Pos: 25652',
+            email: 'UPTsdn22tanahkeras@gmail.com',
+            website: 'www.sdn22tanahkeras.sch.id',
+            namaKartu: 'KARTU PESERTA UJIAN TENGAH SEMESTER I',
+            tahunPelajaran: '2026/2027',
+            semester: 'Ganjil',
+            tanggal: '01 Oktober 2026',
+            kepalaSekolah: 'RINA MELATI, M.Pd',
+            nip: '197103161993042001',
+            ttdUrl: ''
+        };
+
+        let dummySiswaList = [
+            { id: '1', namaSiswa: 'ABIFTIU FA\'IHUL AL RAIFF', kelas: 'III/Tiga', nisnNis: '318127276E / 756', noUjian: 'UTS 1-2324-001', ruangUjian: 'Ruang 01', fotoUrl: '' },
+            { id: '2', namaSiswa: 'AGMA AILA', kelas: 'III/Tiga', nisnNis: '3183172087 / 758', noUjian: 'UTS 1-2324-002', ruangUjian: 'Ruang 01', fotoUrl: '' },
+            { id: '3', namaSiswa: 'AMIRAH FAJRI', kelas: 'III/Tiga', nisnNis: '3187082008 / 759', noUjian: 'UTS 1-2324-003', ruangUjian: 'Ruang 01', fotoUrl: '' },
+            { id: '4', namaSiswa: 'ARSYI NASYA NASITA', kelas: 'III/Tiga', nisnNis: '31812312C2 / 770', noUjian: 'UTS 1-2324-004', ruangUjian: 'Ruang 01', fotoUrl: '' },
+            { id: '5', namaSiswa: 'FARIZ GUSTIAN WAHYUDI', kelas: 'III/Tiga', nisnNis: '317735044E / 771', noUjian: 'UTS 1-2324-005', ruangUjian: 'Ruang 01', fotoUrl: '' },
+            { id: '6', namaSiswa: 'FRISKA ADELINA', kelas: 'III/Tiga', nisnNis: '318311042E / 772', noUjian: 'UTS 1-2324-006', ruangUjian: 'Ruang 01', fotoUrl: '' },
+            { id: '7', namaSiswa: 'KHAIRY FAZQI AL FAJRI', kelas: 'III/Tiga', nisnNis: '3178081817 / 773', noUjian: 'UTS 1-2324-007', ruangUjian: 'Ruang 01', fotoUrl: '' },
+            { id: '8', namaSiswa: 'MUHAMMAD IHSAN', kelas: 'III/Tiga', nisnNis: '3181180828 / 774', noUjian: 'UTS 1-2324-008', ruangUjian: 'Ruang 01', fotoUrl: '' }
+        ];
+
         function showToast(message, type = 'success') {
             const container = document.getElementById('toast-container');
             if (!container) return;
@@ -775,18 +843,13 @@
             `;
 
             container.appendChild(toast);
-
-            setTimeout(() => {
-                toast.classList.remove('translate-y-4', 'opacity-0');
-            }, 10);
-
+            setTimeout(() => toast.classList.remove('translate-y-4', 'opacity-0'), 10);
             setTimeout(() => {
                 toast.classList.add('opacity-0', 'translate-y-2');
                 setTimeout(() => toast.remove(), 300);
             }, 3500);
         }
 
-        // CUSTOM CONFIRM MODAL
         function showConfirm(title, message, onConfirm) {
             document.getElementById('confirm-title').innerText = title || 'Konfirmasi';
             document.getElementById('confirm-message').innerText = message || 'Apakah Anda yakin?';
@@ -810,29 +873,6 @@
             document.getElementById('modal-confirm').classList.add('hidden');
             confirmCallback = null;
         }
-
-        // DATA MASTER KARTU & SISWA IN-MEMORY
-        let dummyMasterKartu = {
-            id: 'MK-01',
-            logoKiriUrl: '',
-            logoKananUrl: '',
-            pemerintah: '',
-            dinas: '',
-            sekolah: '',
-            kecamatan: '',
-            alamat: '',
-            email: '',
-            website: '',
-            namaKartu: '',
-            tahunPelajaran: '',
-            semester: 'Ganjil',
-            tanggal: '',
-            kepalaSekolah: '',
-            nip: '',
-            ttdUrl: ''
-        };
-
-        let dummySiswaList = [];
 
         window.addEventListener('DOMContentLoaded', () => {
             initPWA();
@@ -877,14 +917,10 @@
             try {
                 const response = await fetch(GAS_API_URL, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'text/plain;charset=utf-8',
-                    },
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({ action: action, ...payload })
                 });
-
-                const data = await response.json();
-                return data;
+                return await response.json();
             } catch (err) {
                 console.error('GAS API Error:', err);
                 throw new Error('Gagal menghubungi Server GAS: ' + err.message);
@@ -988,7 +1024,7 @@
                 'dashboard': 'Dashboard',
                 'master-kartu': 'Master Kop & Kartu',
                 'data-siswa': 'Data Siswa & No Ujian',
-                'cetak-massal': 'Cetak Massal',
+                'cetak-massal': 'Cetak Massal (8 Kartu / Lembar F4)',
                 'kartu-saya': 'Kartu Ujian Saya',
                 'pengaturan': 'Pengaturan System'
             };
@@ -1184,7 +1220,7 @@
                 const hasFoto = s.fotoUrl && s.fotoUrl.trim() !== '';
                 const tableFoto = hasFoto
                     ? `<img src="${s.fotoUrl}" onerror="handleStudentTableImgError(this)" class="w-8 h-10 object-cover rounded shadow-sm">`
-                    : `<div class="w-8 h-10 rounded bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold"><i class="fa-solid fa-user text-sm text-emerald-600"></i></div>`;
+                    : `<div class="w-8 h-10 rounded bg-blue-100 text-blue-700 flex items-center justify-center font-bold"><i class="fa-solid fa-user text-sm text-blue-600"></i></div>`;
 
                 return `
                 <tr class="hover:bg-slate-50 transition">
@@ -1304,141 +1340,112 @@
             });
         }
 
-        function handleStudentCardImgError(img) {
-            if (!img || !img.parentNode) return;
-            img.parentNode.innerHTML = '<div class="w-16 h-20 sm:w-20 sm:h-24 rounded-md border-2 border-emerald-500 bg-emerald-50 flex flex-col items-center justify-center text-emerald-600 shadow-sm">' +
-                                       '<i class="fa-solid fa-user text-3xl sm:text-4xl text-emerald-600"></i>' +
-                                       '<span class="text-[8px] font-bold text-emerald-700 mt-1 uppercase tracking-wider">PAS FOTO</span>' +
-                                       '</div>';
-        }
-
         function handleStudentTableImgError(img) {
             if (!img || !img.parentNode) return;
-            img.parentNode.innerHTML = '<div class="w-8 h-10 rounded bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold"><i class="fa-solid fa-user text-sm text-emerald-600"></i></div>';
+            img.parentNode.innerHTML = '<div class="w-8 h-10 rounded bg-blue-100 text-blue-700 flex items-center justify-center font-bold"><i class="fa-solid fa-user text-sm text-blue-600"></i></div>';
         }
 
-        // PEMBERSIH & PENGUNCI TANGGAL AGAR TIDAK TERGESER OLEH UTC TIMESTAMP
-        function cleanDateString(val) {
-            if (!val) return '';
-            let str = String(val).trim();
-            // Jika terdapat string format ISO dari JS Date (misal T17:00:00.000Z)
-            if (str.includes('T')) {
-                const dateObj = new Date(str);
-                if (!isNaN(dateObj.getTime())) {
-                    return dateObj.toLocaleDateString('id-ID', {
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric',
-                        timeZone: 'Asia/Jakarta'
-                    });
-                }
-                str = str.split('T')[0];
-            }
-            return str;
-        }
-
+        // GENERATE KARTU UJIAN SISWA (TEKS LEBIH BESAR & TTD LEBIH BESAR TAMPIL DOMINAN)
         function generateCardHTML(siswa) {
             const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=' + encodeURIComponent(siswa.noUjian + '|' + siswa.namaSiswa);
-            const logoKiri = dummyMasterKartu.logoKiriUrl || '';
-            const logoKanan = dummyMasterKartu.logoKananUrl || '';
-            const ttdImg = dummyMasterKartu.ttdUrl ? '<img src="' + dummyMasterKartu.ttdUrl + '" class="h-8 max-w-[80px] object-contain mx-auto my-0.5" alt="TTD">' : '';
-            const tglBersih = cleanDateString(dummyMasterKartu.tanggal);
+            const logoKiri = dummyMasterKartu.logoKiriUrl || 'https://iili.io/3QUsMEx.png';
+            const logoKanan = dummyMasterKartu.logoKananUrl || 'https://iili.io/3LIjucb.png';
+            const watermarkUrl = 'https://iili.io/nV5XeNS.png';
+            
+            // Gambar TTD Overlay Transparan (Bisa diperbesar leluasa tanpa mengubah ukuran kartu)
+            const ttdImg = dummyMasterKartu.ttdUrl 
+                ? '<div class="card-ttd-container relative h-4 w-28 my-0.5 flex items-center justify-end"><img src="' + dummyMasterKartu.ttdUrl + '" class="card-ttd absolute -top-3 right-0 h-12 sm:h-14 max-h-16 max-w-[150px] object-contain mix-blend-multiply pointer-events-none z-20" alt="TTD"></div>' 
+                : '<div class="h-4 my-0.5"></div>';
 
-            const logoKiriHTML = logoKiri ? '<img src="' + logoKiri + '" onerror="this.style.display=\'none\'" class="w-10 h-10 object-contain flex-shrink-0">' : '<div class="w-10 h-10"></div>';
-            const logoKananHTML = logoKanan ? '<img src="' + logoKanan + '" onerror="this.style.display=\'none\'" class="w-10 h-10 object-contain flex-shrink-0">' : '<div class="w-10 h-10"></div>';
+            const logoKiriHTML = '<img src="' + logoKiri + '" onerror="this.style.display=\'none\'" class="card-kop-logo w-8 h-8 object-contain flex-shrink-0">';
+            const logoKananHTML = '<img src="' + logoKanan + '" onerror="this.style.display=\'none\'" class="card-kop-logo w-8 h-8 object-contain flex-shrink-0">';
 
             let fotoHTML = '';
             if (siswa.fotoUrl && siswa.fotoUrl.trim() !== '') {
-                fotoHTML = '<img src="' + siswa.fotoUrl + '" onerror="handleStudentCardImgError(this)" class="w-16 h-20 sm:w-20 sm:h-24 object-cover rounded-md border-2 border-emerald-500 shadow-sm">';
-            } else {
-                fotoHTML = '<div class="w-16 h-20 sm:w-20 sm:h-24 rounded-md border-2 border-emerald-500 bg-emerald-50 flex flex-col items-center justify-center text-emerald-600 shadow-sm">' +
-                           '<i class="fa-solid fa-user text-3xl sm:text-4xl text-emerald-600"></i>' +
-                           '<span class="text-[8px] font-bold text-emerald-700 mt-1 uppercase tracking-wider">PAS FOTO</span>' +
-                           '</div>';
+                fotoHTML = '<img src="' + siswa.fotoUrl + '" onerror="this.style.display=\'none\'" class="card-foto w-11 h-14 object-cover rounded border border-slate-400 shadow-sm flex-shrink-0">';
             }
 
-            return '' +
-            '<div class="print-card-item bg-white border-2 border-emerald-600 rounded-xl overflow-hidden shadow-md flex flex-col justify-between w-full font-sans text-slate-800 p-2.5 space-y-2 relative" style="-webkit-print-color-adjust: exact; print-color-adjust: exact;">' +
-                '<!-- Header Accent Bar -->' +
-                '<div class="h-1.5 -mx-2.5 -mt-2.5 mb-1 bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-800" style="-webkit-print-color-adjust: exact; print-color-adjust: exact;"></div>' +
+            return `
+            <div class="print-card-item bg-white border-2 border-slate-900 rounded-lg overflow-hidden shadow-sm flex flex-col justify-between w-full font-sans text-slate-900 p-1.5 relative h-[72.5mm] max-h-[72.5mm] box-border" style="-webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                
+                <!-- Watermark Transparan Logo Sekolah di Tengah Card (Diperbesar & Lebih Tebal) -->
+                <div class="absolute inset-0 flex items-center justify-center opacity-[0.20] pointer-events-none z-0">
+                    <img src="${watermarkUrl}" onerror="this.src='https://iili.io/nV5XeNS.th.png'" class="w-36 h-36 object-contain">
+                </div>
 
-                '<!-- Kop Surat Sekolah -->' +
-                '<div class="border-b-2 border-emerald-700 pb-1.5">' +
-                    '<div class="flex items-center justify-between gap-2 text-center">' +
-                        logoKiriHTML +
-                        '<div class="flex-1 min-w-0 leading-tight">' +
-                            (dummyMasterKartu.pemerintah ? '<h5 class="font-bold text-[8px] sm:text-[9px] uppercase tracking-wider text-emerald-900">' + dummyMasterKartu.pemerintah + '</h5>' : '') +
-                            (dummyMasterKartu.dinas ? '<h5 class="font-bold text-[8px] sm:text-[9px] uppercase tracking-wider text-slate-700">' + dummyMasterKartu.dinas + '</h5>' : '') +
-                            '<h3 class="font-extrabold text-[10px] sm:text-[11px] uppercase tracking-wide text-emerald-800">' + (dummyMasterKartu.sekolah || 'NAMA SEKOLAH') + '</h3>' +
-                            '<p class="text-[7.5px] sm:text-[8px] text-slate-600 truncate">' + (dummyMasterKartu.alamat || '') + (dummyMasterKartu.kecamatan ? ' - ' + dummyMasterKartu.kecamatan : '') + '</p>' +
-                            '<p class="text-[7px] sm:text-[7.5px] text-emerald-700 font-medium truncate">' +
-                                (dummyMasterKartu.email ? 'Email: ' + dummyMasterKartu.email : '') +
-                                (dummyMasterKartu.email && dummyMasterKartu.website ? ' | ' : '') +
-                                (dummyMasterKartu.website ? 'Web: ' + dummyMasterKartu.website : '') +
-                            '</p>' +
-                        '</div>' +
-                        logoKananHTML +
-                    '</div>' +
-                '</div>' +
+                <!-- 1. Header / Kop Surat Sekolah -->
+                <div class="relative z-10 border-b border-slate-900 bg-[#003366] text-white p-1 rounded-t-md" style="-webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                    <div class="flex items-center justify-between gap-1 text-center">
+                        ${logoKiriHTML}
+                        <div class="flex-1 min-w-0 leading-tight">
+                            <h5 class="font-extrabold text-[8.5px] uppercase tracking-tight text-white leading-tight">${dummyMasterKartu.pemerintah || 'PEMERINTAH KABUPATEN PESISIR SELATAN'}</h5>
+                            <h5 class="font-bold text-[8.5px] uppercase tracking-tight text-slate-100 leading-tight">${dummyMasterKartu.dinas || 'DINAS PENDIDIKAN'}</h5>
+                            <h3 class="font-black text-[10.5px] uppercase tracking-wide text-amber-300 mt-0.5 leading-tight">${dummyMasterKartu.sekolah || 'SD NEGERI 22 TANAH KERAS'}</h3>
+                            <p class="text-[7.5px] text-slate-200 mt-0.5 leading-tight truncate">${dummyMasterKartu.kecamatan || 'KECAMATAN SILAUT'}</p>
+                        </div>
+                        ${logoKananHTML}
+                    </div>
+                </div>
 
-                '<!-- Judul Kartu Ujian Banner -->' +
-                '<div class="bg-gradient-to-r from-emerald-700 via-teal-700 to-slate-900 text-white p-1.5 rounded-lg text-center shadow-sm" style="-webkit-print-color-adjust: exact; print-color-adjust: exact;">' +
-                    '<h4 class="font-extrabold text-[10px] sm:text-[11px] uppercase tracking-wider leading-none text-white">' + (dummyMasterKartu.namaKartu || 'KARTU UJIAN DIGITAL') + '</h4>' +
-                    '<p class="text-[8px] text-amber-200 font-semibold mt-0.5">T.P. ' + (dummyMasterKartu.tahunPelajaran || '2025/2026') + ' - Semester ' + (dummyMasterKartu.semester || 'Ganjil') + '</p>' +
-                '</div>' +
+                <!-- Sub-ribbon Alamat Maroon -->
+                <div class="relative z-10 bg-[#800000] text-white px-1 py-0.5 text-[6.5px] text-center font-bold leading-tight border-b border-slate-900 tracking-tight" style="-webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                    ${dummyMasterKartu.alamat || 'Alamat: Tanah Keras - Gurun Panjang Barat, Kode Pos: 25652'} | Email: ${dummyMasterKartu.email || 'UPTsdn22tanahkeras@gmail.com'}
+                </div>
 
-                '<!-- Body Kartu (Foto & Detail Siswa) -->' +
-                '<div class="grid grid-cols-3 gap-2 items-center">' +
-                    '<!-- Foto Siswa -->' +
-                    '<div class="col-span-1 flex flex-col items-center">' +
-                        fotoHTML +
-                    '</div>' +
+                <!-- 2. Judul Banner Kartu Ujian -->
+                <div class="relative z-10 text-center py-0.5 border-b border-dashed border-slate-400">
+                    <h4 class="font-black text-[10px] uppercase tracking-wider text-slate-900 leading-tight">${dummyMasterKartu.namaKartu || 'KARTU PESERTA UJIAN TENGAH SEMESTER I'}</h4>
+                    <p class="text-[8px] font-extrabold text-slate-800 leading-tight">TAHUN PELAJARAN ${dummyMasterKartu.tahunPelajaran || '2026/2027'}</p>
+                </div>
 
-                    '<!-- Detail Siswa -->' +
-                    '<div class="col-span-2 space-y-1 text-[10px] leading-tight">' +
-                        '<div>' +
-                            '<p class="text-[7.5px] uppercase text-emerald-800 font-bold tracking-wider">Nama Lengkap</p>' +
-                            '<p class="font-bold text-slate-900 truncate bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200">' + siswa.namaSiswa + '</p>' +
-                        '</div>' +
-                        '<div class="grid grid-cols-2 gap-1">' +
-                            '<div>' +
-                                '<p class="text-[7.5px] uppercase text-emerald-800 font-bold tracking-wider">Kelas</p>' +
-                                '<p class="font-semibold text-slate-800 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200">' + siswa.kelas + '</p>' +
-                            '</div>' +
-                            '<div>' +
-                                '<p class="text-[7.5px] uppercase text-emerald-800 font-bold tracking-wider">NISN / NIS</p>' +
-                                '<p class="font-mono text-slate-800 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200">' + siswa.nisnNis + '</p>' +
-                            '</div>' +
-                        '</div>' +
-                        '<div>' +
-                            '<p class="text-[7.5px] uppercase text-emerald-800 font-bold tracking-wider">Nomor Ujian</p>' +
-                            '<p class="font-mono font-extrabold text-emerald-800 text-xs bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-300" style="-webkit-print-color-adjust: exact; print-color-adjust: exact;">' + siswa.noUjian + '</p>' +
-                        '</div>' +
-                        '<div>' +
-                            '<p class="text-[7.5px] uppercase text-emerald-800 font-bold tracking-wider">Ruang</p>' +
-                            '<p class="font-semibold text-slate-800 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200">' + (siswa.ruangUjian || 'Ruang Utama') + '</p>' +
-                        '</div>' +
-                    '</div>' +
-                '</div>' +
+                <!-- 3. Isian Data Peserta Ujian -->
+                <div class="relative z-10 flex gap-2 items-center px-1 py-0.5">
+                    ${fotoHTML}
+                    <div class="flex-1 text-[9px] leading-snug space-y-0.5 font-bold">
+                        <div class="grid grid-cols-12 gap-0.5">
+                            <span class="col-span-4 uppercase text-slate-700 font-extrabold">NAMA</span>
+                            <span class="col-span-8 font-black text-slate-900 truncate">: ${siswa.namaSiswa}</span>
+                        </div>
+                        <div class="grid grid-cols-12 gap-0.5">
+                            <span class="col-span-4 uppercase text-slate-700 font-extrabold">KELAS</span>
+                            <span class="col-span-8 font-black text-slate-900">: ${siswa.kelas}</span>
+                        </div>
+                        <div class="grid grid-cols-12 gap-0.5">
+                            <span class="col-span-4 uppercase text-slate-700 font-extrabold">RUANG</span>
+                            <span class="col-span-8 font-black text-slate-900">: ${siswa.ruangUjian || 'Ruang 01'}</span>
+                        </div>
+                        <div class="grid grid-cols-12 gap-0.5">
+                            <span class="col-span-4 uppercase text-slate-700 font-extrabold">NO. UJIAN</span>
+                            <span class="col-span-8 font-black text-blue-900 bg-blue-50 px-1 rounded border border-blue-300 inline-block font-mono text-[9.5px]">: ${siswa.noUjian}</span>
+                        </div>
+                        <div class="grid grid-cols-12 gap-0.5">
+                            <span class="col-span-4 uppercase text-slate-700 font-extrabold">NISN/NIS</span>
+                            <span class="col-span-8 font-mono font-black text-slate-900">: ${siswa.nisnNis}</span>
+                        </div>
+                    </div>
+                </div>
 
-                '<!-- Footer Kartu (QR & TTD Elektronik) -->' +
-                '<div class="bg-gradient-to-r from-emerald-50 via-teal-50 to-slate-50 border border-emerald-200 rounded-lg p-1.5 flex items-center justify-between text-[8px] leading-tight" style="-webkit-print-color-adjust: exact; print-color-adjust: exact;">' +
-                    '<div class="flex items-center space-x-1.5">' +
-                        '<img src="' + qrUrl + '" alt="QR" class="w-10 h-10 sm:w-11 sm:h-11 border border-emerald-300 rounded p-0.5 bg-white flex-shrink-0">' +
-                        '<div class="text-[7px] text-emerald-700 font-mono hidden sm:block">' +
-                            '<p class="font-extrabold text-emerald-800">VERIFIED</p>' +
-                            '<p class="font-bold text-slate-600">' + (tglBersih ? tglBersih.split('-')[0].trim() : '') + '</p>' +
-                        '</div>' +
-                    '</div>' +
+                <!-- 4. Footer Kartu (QR Code & TTD Elektronik Kepala Sekolah) -->
+                <div class="relative z-10 flex items-end justify-between pt-0.5 border-t border-slate-300 px-1 mt-auto">
+                    <div class="flex items-center space-x-1.5">
+                        <img src="${qrUrl}" alt="QR" class="card-qr w-8 h-8 border border-slate-400 rounded p-0.5 bg-white flex-shrink-0">
+                        <div class="text-[6.5px] font-mono text-slate-700 leading-tight hidden sm:block">
+                            <p class="font-extrabold text-slate-900">VALIDATED</p>
+                            <p class="font-bold text-slate-600">${dummyMasterKartu.tanggal || '01-10-2026'}</p>
+                        </div>
+                    </div>
 
-                    '<div class="text-right flex flex-col items-end min-w-[100px]">' +
-                        '<p class="text-[7.5px] text-slate-600 font-medium">Kepala Sekolah,</p>' +
-                        ttdImg +
-                        '<p class="font-bold text-emerald-900 mt-0.5 leading-none">' + (dummyMasterKartu.kepalaSekolah || 'Kepala Sekolah') + '</p>' +
-                        '<p class="text-[7px] text-slate-600 mt-0.5">NIP. ' + (dummyMasterKartu.nip || '-') + '</p>' +
-                    '</div>' +
-                '</div>' +
-            '</div>';
+                    <div class="text-right flex flex-col items-end text-[7.5px] leading-tight min-w-[120px]">
+                        <p class="text-[7px] text-slate-700 font-semibold mb-0">Mengetahui,</p>
+                        <p class="text-[7.5px] font-extrabold text-slate-900 mb-0">Kepala Sekolah</p>
+                        <!-- Area Gambar TTD Transparan Overlay -->
+                        ${ttdImg}
+                        <p class="font-black text-slate-900 underline text-[8.5px] block z-10">${dummyMasterKartu.kepalaSekolah || 'RINA MELATI, M.Pd'}</p>
+                        <p class="text-[7px] text-slate-800 font-mono font-bold block z-10">NIP. ${dummyMasterKartu.nip || '197103161993042001'}</p>
+                    </div>
+                </div>
+
+            </div>`;
         }
 
         function updatePaperSize() {
@@ -1451,12 +1458,16 @@
             }
 
             let pageRule = '215mm 330mm portrait';
+            let pageMargin = '3mm 4mm';
             if (paperSize === 'A4') {
                 pageRule = '210mm 297mm portrait';
+                pageMargin = '3mm 4mm';
             } else if (paperSize === 'Legal') {
                 pageRule = '216mm 356mm portrait';
+                pageMargin = '4mm 4mm';
             } else {
                 pageRule = '215mm 330mm portrait';
+                pageMargin = '3mm 4mm';
             }
 
             styleEl.innerHTML = `
@@ -1466,9 +1477,10 @@
                         print-color-adjust: exact !important;
                         color-adjust: exact !important;
                     }
-                    @page { size: ${pageRule}; margin: 5mm; }
+                    @page { size: ${pageRule}; margin: ${pageMargin}; }
                     html, body {
                         width: 100% !important;
+                        height: 100% !important;
                         margin: 0 !important;
                         padding: 0 !important;
                         background: white !important;
@@ -1476,31 +1488,45 @@
                     .print-page-wrapper {
                         page-break-after: always;
                         break-after: page;
-                        margin-bottom: 0 !important;
-                        padding-bottom: 0 !important;
-                        border: none !important;
-                        box-shadow: none !important;
-                        background: transparent !important;
-                        width: 100% !important;
-                    }
-                    .print-page-wrapper:last-child {
-                        page-break-after: avoid;
-                        break-after: avoid;
-                    }
-                    .print-grid {
-                        display: grid !important;
-                        grid-template-columns: repeat(2, 1fr) !important;
-                        gap: 4mm !important;
-                        width: 100% !important;
-                    }
-                    .print-card-item {
+                        margin: 0 !important;
+                        padding: 0 !important;
+                    .print-card-item .card-card-item {
                         box-shadow: none !important;
                         break-inside: avoid !important;
                         page-break-inside: avoid !important;
                         width: 100% !important;
-                        max-width: 100% !important;
+                        height: 72.5mm !important;
+                        max-height: 72.5mm !important;
+                        padding: 1.5mm 2.5mm !important;
+                        border: 1.5px solid #0f172a !important;
+                        box-sizing: border-box !important;
+                        overflow: hidden !important;
+                        display: flex !important;
+                        flex-direction: column !important;
+                        justify-content: space-between !important;
                         -webkit-print-color-adjust: exact !important;
                         print-color-adjust: exact !important;
+                    }
+                    .print-card-item .card-ttd-container {
+                        position: relative !important;
+                        height: 16px !important;
+                        width: 110px !important;
+                        display: flex !important;
+                        align-items: center !important;
+                        justify-content: flex-end !important;
+                    }
+                    .print-card-item .card-ttd {
+                        position: absolute !important;
+                        top: 50% !important;
+                        right: 0 !important;
+                        transform: translateY(-50%) !important;
+                        height: 52px !important;
+                        max-height: 56px !important;
+                        max-width: 150px !important;
+                        object-fit: contain !important;
+                        mix-blend-mode: multiply !important;
+                        pointer-events: none !important;
+                        z-index: 20 !important;
                     }
                 }
             `;
@@ -1538,10 +1564,10 @@
                 const totalPages = Math.ceil(filtered.length / cardsPerPage);
 
                 htmlPages += `
-                    <div class="print-page-wrapper bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="print-page-wrapper bg-white p-3 rounded-2xl border border-slate-200 shadow-sm">
                         <div class="no-print mb-3 text-xs font-semibold text-slate-500 flex justify-between items-center border-b pb-2 border-slate-100">
-                            <span><i class="fa-solid fa-file-lines text-brand-600 mr-1.5"></i> Lembar Cetak Ke-${pageNum} dari ${totalPages} (${chunk.length} Kartu)</span>
-                            <span class="text-[10px] bg-brand-50 text-brand-700 px-2.5 py-0.5 rounded-full font-mono font-bold">${paperSize} - Maksimal ${cardsPerPage} Kartu/Lembar</span>
+                            <span><i class="fa-solid fa-file-lines text-brand-600 mr-1.5"></i> Lembar Cetak Ke-${pageNum} dari ${totalPages} (${chunk.length} Kartu Ujian)</span>
+                            <span class="text-[10px] bg-emerald-50 text-emerald-800 px-2.5 py-0.5 rounded-full font-mono font-bold">${paperSize} - ${chunk.length} / 8 Kartu per Halaman</span>
                         </div>
                         <div class="grid grid-cols-2 gap-2 sm:gap-3 print-grid">
                             ${chunk.map(s => generateCardHTML(s)).join('')}
@@ -1596,7 +1622,7 @@
 
             if ('serviceWorker' in navigator) {
                 const swCode = `
-                    const CACHE_NAME = 'kartu-ujian-v1';
+                    const CACHE_NAME = 'kartu-ujian-v4';
                     self.addEventListener('install', (e) => {
                         e.waitUntil(self.skipWaiting());
                     });
