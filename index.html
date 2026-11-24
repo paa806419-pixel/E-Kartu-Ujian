@@ -956,6 +956,45 @@
     <!-- TOAST NOTIFICATION CONTAINER -->
     <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none max-w-sm w-full px-4 sm:px-0"></div>
 
+    <!-- MODAL NOTIFIKASI LOADING LOGIN & MEMUAT DATA GOOGLE SHEET (1% - 100%) -->
+    <div id="login-loading-overlay" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-7 shadow-2xl border border-slate-100 text-center space-y-5 relative overflow-hidden">
+            <!-- Hiasan Latar -->
+            <div class="absolute -right-8 -top-8 w-28 h-28 bg-brand-500/10 rounded-full blur-xl pointer-events-none"></div>
+            <div class="absolute -left-8 -bottom-8 w-28 h-28 bg-emerald-500/10 rounded-full blur-xl pointer-events-none"></div>
+
+            <!-- Ikon & Spinner -->
+            <div class="relative mx-auto w-16 h-16 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center text-2xl shadow-inner border border-brand-100">
+                <i id="login-loading-icon" class="fa-solid fa-shield-halved animate-pulse"></i>
+            </div>
+
+            <!-- Teks Status Dinamis -->
+            <div class="space-y-1">
+                <h3 id="login-loading-title" class="text-lg font-extrabold text-slate-900 tracking-tight">Sedang Login...</h3>
+                <p id="login-loading-subtitle" class="text-xs font-medium text-slate-500">Memverifikasi kredensial pengguna</p>
+            </div>
+
+            <!-- Angka Persentase Besar 1% - 100% -->
+            <div class="space-y-2">
+                <div class="flex items-baseline justify-center">
+                    <span id="login-loading-percent" class="text-4xl font-black text-brand-600 font-mono tracking-tight">1</span>
+                    <span class="text-lg font-extrabold text-brand-500 ml-0.5">%</span>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/80">
+                    <div id="login-loading-bar" class="h-full bg-gradient-to-r from-brand-500 via-emerald-500 to-brand-600 rounded-full transition-all duration-150 ease-out" style="width: 1%;"></div>
+                </div>
+            </div>
+
+            <!-- Detail Proses Google Sheet -->
+            <div class="pt-1 flex items-center justify-center space-x-2 text-[11px] font-semibold text-slate-500">
+                <i class="fa-solid fa-circle-notch fa-spin text-brand-600"></i>
+                <span id="login-loading-detail">Menghubungkan ke Google Sheet...</span>
+            </div>
+        </div>
+    </div>
+
     <script>
         const DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbzpIcKDuKbVDRELQFkKS5JffsTEMtYVxtbUfasccoa3RBy05u7uMjg5EOePb63Wd5XW/exec';
         const ADMOPS_GAS_URL = 'https://script.google.com/macros/s/AKfycbxttymbAytSguMpS60vxyQgdrVPmoQOp_hr3lhiuScscrXvvAc4XFCJYkyZrH2JvUL0/exec';
@@ -1120,22 +1159,22 @@
             btnSubmit.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>Memproses...</span>`;
 
             if (IS_PREVIEW) {
-                setTimeout(() => {
+                setTimeout(async () => {
                     btnSubmit.disabled = false;
                     btnSubmit.innerHTML = `<span>Masuk ke Sistem</span><i class="fa-solid fa-arrow-right text-sm"></i>`;
 
                     if (usernameInput === 'admin' && passwordInput === 'edudigital') {
                         currentUser = { username: 'admin', nama: 'Administrator Panitia', role: 'Admin' };
-                        setupAuthenticatedUI();
+                        await jalankanProsesLoginDanMuatData();
                     } else if (usernameInput === 'peserta' && passwordInput === 'edudigital') {
                         const targetSiswa = dummySiswaList.length > 0 ? dummySiswaList[0] : null;
                         currentUser = { username: 'peserta', nama: targetSiswa ? targetSiswa.namaSiswa : 'Peserta Ujian', role: 'Peserta', siswaData: targetSiswa };
-                        setupAuthenticatedUI();
+                        await jalankanProsesLoginDanMuatData();
                     } else {
                         alertBox.innerText = 'Username atau Password salah! (Mode Preview: admin / edudigital)';
                         alertBox.classList.remove('hidden');
                     }
-                }, 400);
+                }, 300);
             } else {
                 try {
                     const response = await callGasApi('checkLogin', { username: usernameInput, password: passwordInput });
@@ -1144,7 +1183,7 @@
 
                     if (response && response.success) {
                         currentUser = response.user;
-                        setupAuthenticatedUI();
+                        await jalankanProsesLoginDanMuatData();
                     } else {
                         alertBox.innerText = (response && response.message) ? response.message : 'Login gagal! Periksa username/password.';
                         alertBox.classList.remove('hidden');
@@ -1158,7 +1197,97 @@
             }
         }
 
-        function setupAuthenticatedUI() {
+        // ANIMASI NOTIFIKASI SEDANG LOGIN & MEMUAT DATA APLIKASI DARI GOOGLE SHEET (1% - 100%)
+        async function jalankanProsesLoginDanMuatData() {
+            const overlay = document.getElementById('login-loading-overlay');
+            const titleEl = document.getElementById('login-loading-title');
+            const subtitleEl = document.getElementById('login-loading-subtitle');
+            const detailEl = document.getElementById('login-loading-detail');
+            const percentEl = document.getElementById('login-loading-percent');
+            const barEl = document.getElementById('login-loading-bar');
+            const iconEl = document.getElementById('login-loading-icon');
+
+            let currentPercent = 1;
+            let dataSelesaiDimuat = false;
+
+            // Reset tampilan awal modal loading
+            titleEl.innerText = 'Sedang Login...';
+            subtitleEl.innerText = 'Menyiapkan sesi pengguna ' + (currentUser.nama || currentUser.username);
+            detailEl.innerText = 'Mengautentikasi akses sistem...';
+            iconEl.className = 'fa-solid fa-shield-halved animate-pulse';
+            percentEl.innerText = '1';
+            barEl.style.width = '1%';
+            overlay.classList.remove('hidden');
+
+            // Jalankan penarikan data langsung dari Google Sheet secara paralel
+            const fetchAllDataPromise = (async () => {
+                try {
+                    await Promise.all([
+                        loadDataMasterKartu(),
+                        loadDataSiswa()
+                    ]);
+                } catch (err) {
+                    console.warn('Peringatan saat memuat data Google Sheet:', err);
+                } finally {
+                    dataSelesaiDimuat = true;
+                }
+            })();
+
+            // Jalankan animasi angka 1% - 100% yang sinkron dengan proses pengambilan data Google Sheet
+            await new Promise((resolve) => {
+                const interval = setInterval(() => {
+                    if (currentPercent < 35) {
+                        // Tahap 1: Sedang Login (1% - 35%)
+                        currentPercent += Math.floor(Math.random() * 5) + 3;
+                        if (currentPercent > 35) currentPercent = 35;
+                        titleEl.innerText = 'Sedang Login...';
+                        subtitleEl.innerText = 'Login berhasil, mengalihkan ke ruang kerja...';
+                        detailEl.innerText = 'Mempersiapkan koneksi database...';
+                    } else if (currentPercent < 92) {
+                        // Tahap 2: Memuat Data Aplikasi langsung dari Google Sheet (36% - 92%)
+                        titleEl.innerText = 'Memuat Data Aplikasi...';
+                        subtitleEl.innerText = 'Mengambil Data Master Kartu';
+                        detailEl.innerText = IS_PREVIEW ? 'Memuat data lokal aplikasi...' : 'Singkronisasi';
+                        iconEl.className = 'fa-solid fa-cloud-arrow-down animate-bounce';
+
+                        if (dataSelesaiDimuat) {
+                            currentPercent += Math.floor(Math.random() * 8) + 5;
+                        } else {
+                            // Tahan perlahan di sekitar 85%-92% sampai fetch Google Sheet selesai
+                            if (currentPercent < 88) {
+                                currentPercent += 2;
+                            }
+                        }
+                        if (currentPercent > 92 && !dataSelesaiDimuat) currentPercent = 92;
+                    } else if (dataSelesaiDimuat) {
+                        // Tahap 3: Penyelesaian 93% -> 100% setelah data Google Sheet siap
+                        currentPercent += 4;
+                        titleEl.innerText = 'Memuat Data Aplikasi...';
+                        subtitleEl.innerText = 'Data aplikasi berhasil dimuat!';
+                        detailEl.innerText = `Total ${dummySiswaList.length} data siswa siap ditampilkan`;
+                        iconEl.className = 'fa-solid fa-circle-check text-emerald-600';
+
+                        if (currentPercent >= 100) {
+                            currentPercent = 100;
+                            percentEl.innerText = '100';
+                            barEl.style.width = '100%';
+                            clearInterval(interval);
+                            setTimeout(resolve, 350);
+                            return;
+                        }
+                    }
+
+                    percentEl.innerText = currentPercent;
+                    barEl.style.width = currentPercent + '%';
+                }, 45);
+            });
+
+            await fetchAllDataPromise;
+            overlay.classList.add('hidden');
+            setupAuthenticatedUI(true);
+        }
+
+        function setupAuthenticatedUI(dataAlreadyLoaded = false) {
             if (!currentUser) return;
 
             document.getElementById('login-view').classList.add('hidden');
@@ -1167,6 +1296,16 @@
             document.getElementById('user-display-name').innerText = currentUser.nama || currentUser.username;
             document.getElementById('user-role-badge').innerText = currentUser.role || 'User';
             document.getElementById('user-avatar').innerText = (currentUser.nama || currentUser.username).charAt(0).toUpperCase();
+
+            // Jika peserta login menggunakan mode online, cocokkan data kartu miliknya dari data Google Sheet yang baru dimuat
+            if (currentUser.role !== 'Admin' && !currentUser.siswaData && dummySiswaList.length > 0) {
+                const matched = dummySiswaList.find(s =>
+                    (s.nisnNis && s.nisnNis.toLowerCase().includes((currentUser.username || '').toLowerCase())) ||
+                    (s.noUjian && s.noUjian.toLowerCase() === (currentUser.username || '').toLowerCase()) ||
+                    (s.namaSiswa && s.namaSiswa.toLowerCase() === (currentUser.nama || '').toLowerCase())
+                );
+                if (matched) currentUser.siswaData = matched;
+            }
 
             if (currentUser.role === 'Admin') {
                 document.getElementById('admin-nav-group').classList.remove('hidden');
@@ -1178,10 +1317,13 @@
                 switchTab('kartu-saya');
             }
 
-            loadDataMasterKartu();
-            loadDataSiswa();
+            if (!dataAlreadyLoaded) {
+                loadDataMasterKartu();
+                loadDataSiswa();
+            }
             renderPesanAdmops();
             cekPerubahanAdmopsOtomatis(false);
+            showToast(`Selamat datang, ${currentUser.nama || currentUser.username}! Data berhasil dimuat.`, 'success');
         }
 
         function switchTab(tabName) {
