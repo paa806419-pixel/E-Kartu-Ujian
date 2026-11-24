@@ -869,11 +869,20 @@
                     </div>
                 </div>
 
-                <!-- Pengaturan Awalan Nomor Ujian & Ruang -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                <!-- Pengaturan Awalan Nomor Ujian, Nomor Awal Urut & Ruang -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Awalan Nomor Ujian Otomatis</label>
-                        <input type="text" id="admops-prefix-noujian" value="UTS 1-2627-" oninput="renderPreviewAdmops()" placeholder="Contoh: UTS 1-2627-" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-mono focus:ring-2 focus:ring-amber-500">
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Awalan Nomor Ujian</label>
+                        <input type="text" id="admops-prefix-noujian" value="US1-" oninput="renderPreviewAdmops()" placeholder="Contoh: US1- atau UA1-" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-mono focus:ring-2 focus:ring-amber-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Mulai Nomor Urut</label>
+                        <div class="flex items-center space-x-1.5">
+                            <input type="number" id="admops-start-number" value="1" min="1" oninput="renderPreviewAdmops()" placeholder="1" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-mono font-bold text-brand-700 focus:ring-2 focus:ring-amber-500">
+                            <button type="button" onclick="setNextAdmopsStartNumber()" title="Lanjutkan dari nomor terakhir di tabel" class="px-2.5 py-2 bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-xl text-[10px] font-bold whitespace-nowrap transition border border-amber-300">
+                                Lanjut (<span id="admops-next-hint">001</span>)
+                            </button>
+                        </div>
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1">Ruang Ujian Default</label>
@@ -1670,11 +1679,39 @@
         // ==========================================
         // FITUR TARIK DATA DARI APLIKASI ADMOPS
         // ==========================================
+        function getNextSequenceFromExisting() {
+            let maxNum = 0;
+            dummySiswaList.forEach(s => {
+                const match = String(s.noUjian || '').match(/(\d+)\s*$/);
+                if (match) {
+                    const num = parseInt(match[1], 10);
+                    if (!isNaN(num) && num > maxNum) maxNum = num;
+                }
+            });
+            return maxNum > 0 ? maxNum + 1 : 1;
+        }
+
+        function setNextAdmopsStartNumber() {
+            const nextNum = getNextSequenceFromExisting();
+            const startInput = document.getElementById('admops-start-number');
+            if (startInput) {
+                startInput.value = nextNum;
+                renderPreviewAdmops();
+            }
+        }
+
         function openModalTarikAdmops() {
             document.getElementById('modal-tarik-admops').classList.remove('hidden');
             admopsSelectedKelas = '';
             admopsFilteredStudents = [];
             updateKelasButtonStyles('');
+
+            const nextSeq = getNextSequenceFromExisting();
+            const hintEl = document.getElementById('admops-next-hint');
+            if (hintEl) hintEl.innerText = String(nextSeq).padStart(3, '0');
+            const startInput = document.getElementById('admops-start-number');
+            if (startInput) startInput.value = dummySiswaList.length === 0 ? 1 : nextSeq;
+
             document.getElementById('admops-preview-tbody').innerHTML = `
                 <tr>
                     <td colspan="5" class="p-6 text-center text-slate-400">
@@ -1786,7 +1823,8 @@
         function renderPreviewAdmops() {
             const tbody = document.getElementById('admops-preview-tbody');
             const prefix = document.getElementById('admops-prefix-noujian').value.trim();
-            const startNumber = dummySiswaList.length + 1;
+            const startInputVal = parseInt(document.getElementById('admops-start-number').value, 10);
+            const startNumber = (!isNaN(startInputVal) && startInputVal >= 1) ? startInputVal : 1;
 
             if (!admopsSelectedKelas) return;
 
@@ -1803,17 +1841,19 @@
                 return;
             }
 
+            let checkedSeqOffset = 0;
             tbody.innerHTML = admopsFilteredStudents.map((s, idx) => {
-                const autoNoUjian = `${prefix}${String(startNumber + idx).padStart(3, '0')}`;
+                const autoNoUjian = `${prefix}${String(startNumber + checkedSeqOffset).padStart(3, '0')}`;
+                checkedSeqOffset++;
                 return `
                     <tr class="hover:bg-amber-50/40 transition">
                         <td class="p-2.5 text-center">
-                            <input type="checkbox" checked value="${idx}" onchange="updateAdmopsSelectedCount()" class="admops-row-cb rounded text-brand-600 focus:ring-brand-500">
+                            <input type="checkbox" checked value="${idx}" onchange="recalculateAdmopsPreviewNumbers()" class="admops-row-cb rounded text-brand-600 focus:ring-brand-500">
                         </td>
                         <td class="p-2.5 font-bold text-slate-800">${s.namaSiswa}</td>
                         <td class="p-2.5"><span class="px-2 py-0.5 rounded bg-amber-100 text-amber-900 font-semibold">${s.kelas}</span></td>
                         <td class="p-2.5 font-mono text-slate-600">${s.nisnNis || '-'}</td>
-                        <td class="p-2.5 font-mono font-bold text-brand-700">${autoNoUjian}</td>
+                        <td class="p-2.5 font-mono font-bold text-brand-700 admops-noujian-cell">${autoNoUjian}</td>
                     </tr>
                 `;
             }).join('');
@@ -1822,9 +1862,35 @@
             updateAdmopsSelectedCount();
         }
 
+        function recalculateAdmopsPreviewNumbers() {
+            const prefix = document.getElementById('admops-prefix-noujian').value.trim();
+            const startInputVal = parseInt(document.getElementById('admops-start-number').value, 10);
+            const startNumber = (!isNaN(startInputVal) && startInputVal >= 1) ? startInputVal : 1;
+
+            const rows = document.querySelectorAll('#admops-preview-tbody tr');
+            let seq = startNumber;
+            rows.forEach(row => {
+                const cb = row.querySelector('.admops-row-cb');
+                const cell = row.querySelector('.admops-noujian-cell');
+                if (cb && cell) {
+                    if (cb.checked) {
+                        cell.innerText = `${prefix}${String(seq).padStart(3, '0')}`;
+                        cell.classList.remove('text-slate-400', 'line-through');
+                        cell.classList.add('text-brand-700');
+                        seq++;
+                    } else {
+                        cell.innerText = '-';
+                        cell.classList.remove('text-brand-700');
+                        cell.classList.add('text-slate-400');
+                    }
+                }
+            });
+            updateAdmopsSelectedCount();
+        }
+
         function toggleAllAdmopsCheckbox(checked) {
             document.querySelectorAll('.admops-row-cb').forEach(cb => cb.checked = checked);
-            updateAdmopsSelectedCount();
+            recalculateAdmopsPreviewNumbers();
         }
 
         function updateAdmopsSelectedCount() {
@@ -2060,6 +2126,7 @@
             btnImport.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>Sinkronisasi (${checkboxes.length})...</span>`;
 
             const prefix = document.getElementById('admops-prefix-noujian').value.trim();
+            const startInputVal = parseInt(document.getElementById('admops-start-number').value, 10);
             const ruangDefault = document.getElementById('admops-default-ruang').value.trim() || 'Ruang 01';
 
             let addedCount = 0;
@@ -2122,10 +2189,11 @@
             }
 
             dummySiswaList = remainingStudents;
-            let currentSeq = dummySiswaList.length + 1;
+            let currentSeq = (!isNaN(startInputVal) && startInputVal >= 1) ? startInputVal : (dummySiswaList.length + 1);
 
-            // 2. Perbarui data yang sudah ada atau tambahkan siswa baru (Mutasi Masuk / Tarikan Baru)
+            // 2. Perbarui data yang sudah ada atau tambahkan siswa baru (Mutasi Masuk / Tarikan Baru) dengan Nomor Ujian berurutan
             for (const src of selectedSources) {
+                const formattedNoUjian = `${prefix}${String(currentSeq).padStart(3, '0')}`;
                 const existingIdx = dummySiswaList.findIndex(s =>
                     (src.nisnNis && s.nisnNis && src.nisnNis === s.nisnNis) ||
                     s.namaSiswa.toLowerCase() === src.namaSiswa.toLowerCase()
@@ -2140,17 +2208,20 @@
                     dummySiswaList[existingIdx].namaSiswa = src.namaSiswa;
                     dummySiswaList[existingIdx].kelas = src.kelas;
                     dummySiswaList[existingIdx].nisnNis = src.nisnNis || dummySiswaList[existingIdx].nisnNis;
+                    dummySiswaList[existingIdx].noUjian = formattedNoUjian;
+                    dummySiswaList[existingIdx].ruangUjian = ruangDefault;
 
                     if (!IS_PREVIEW) {
                         await callGasApi('saveSiswa', { data: dummySiswaList[existingIdx] }).catch(() => {});
                     }
+                    currentSeq++;
                 } else {
                     const newStudent = {
                         id: (Date.now() + addedCount).toString(),
                         namaSiswa: src.namaSiswa,
                         kelas: src.kelas,
                         nisnNis: src.nisnNis || '-',
-                        noUjian: `${prefix}${String(currentSeq).padStart(3, '0')}`,
+                        noUjian: formattedNoUjian,
                         ruangUjian: ruangDefault,
                         fotoUrl: ''
                     };
@@ -2354,7 +2425,8 @@
                         break-after: page;
                         margin: 0 !important;
                         padding: 0 !important;
-                    .print-card-item .card-card-item {
+                    }
+                    .print-card-item {
                         box-shadow: none !important;
                         break-inside: avoid !important;
                         page-break-inside: avoid !important;
